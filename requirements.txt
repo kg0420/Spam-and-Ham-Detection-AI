@@ -2,5 +2,8 @@ nltk
 gunicorn
 Flask
 tensorflow
-numpy pandas scikit-learn
+numpy pandas 
+sklearn
+
+
 matplotlib seaborn
