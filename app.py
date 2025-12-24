@@ -30,7 +30,7 @@ app = Flask(__name__)
 # -------------------------
 # Load trained model
 # -------------------------
-model = load_model("spam_model_fixed.keras")
+model = load_model("spam_model.keras")
 
 
 # -------------------------
