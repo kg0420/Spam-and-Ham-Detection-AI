@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SpamGuard AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-30px); }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen text-white relative 
+bg-gradient-to-br from-[#020617] via-[#030a1a] to-[#020617]">
+
+<!-- 🔮 Animated Background Orbs -->
+<div class="fixed inset-0 -z-10 ">
+  <div class="absolute -top-32 left-1/2 -translate-x-1/2
+    w-[420px] h-[420px] bg-blue-600/30 rounded-full blur-[140px] animate-pulse"></div>
+
+  <div class="absolute top-1/3 -left-32
+    w-[360px] h-[360px] bg-indigo-600/30 rounded-full blur-[160px]
+    animate-[float_14s_ease-in-out_infinite]"></div>
+
+  <div class="absolute bottom-0 right-0
+    w-[400px] h-[400px] bg-cyan-500/25 rounded-full blur-[180px]
+    animate-[float_18s_ease-in-out_infinite]"></div>
+</div>
+
+<!-- 🧠 Header -->
+<header class="sticky top-0 z-10
+bg-[radial-gradient(ellipse_at_top,_#1e293b_0%,_#020617_60%)]
+backdrop-blur-xl border-b border-white/10">
+  <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+    <h1 class="text-lg sm:text-2xl font-bold tracking-wide">
+      📧 SpamGuard AI
+    </h1>
+    <span class="text-xs px-3 py-1 rounded-full
+      bg-blue-600/20 text-blue-400 border border-blue-600/30">
+      NLP + Deep Learning
+    </span>
+  </div>
+</header>
+
+<!-- 📱 Main Content -->
+<main class="max-w-5xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-2 gap-10">
+
+  <!-- ℹ️ INFO SECTION -->
+  <section class="space-y-6 text-center lg:text-left">
+    <h2 class="text-3xl sm:text-4xl font-extrabold leading-tight">
+      Smart Spam Detection<br class="hidden sm:block">
+      Powered by AI
+    </h2>
+
+    <p class="text-slate-300 max-w-md mx-auto lg:mx-0">
+      SpamGuard AI uses Natural Language Processing and a trained Deep Learning
+      model to detect unwanted and harmful messages instantly.
+    </p>
+
+    <!-- Feature cards -->
+    <div class="grid grid-cols-2 gap-4 max-w-md mx-auto lg:mx-0">
+      <div class="bg-white/10 backdrop-blur-xl p-4 rounded-xl border border-white/10">
+        ⚡ <b>Fast</b>
+        <p class="text-xs text-slate-400 mt-1">Real-time prediction</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-xl p-4 rounded-xl border border-white/10">
+        🧠 <b>ML Model</b>
+        <p class="text-xs text-slate-400 mt-1">Trained on spam data</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-xl p-4 rounded-xl border border-white/10">
+        🔐 <b>Secure</b>
+        <p class="text-xs text-slate-400 mt-1">No data stored</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-xl p-4 rounded-xl border border-white/10">
+        📱 <b>Responsive</b>
+        <p class="text-xs text-slate-400 mt-1">Mobile-first UI</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🧪 FORM SECTION -->
+  <section class="flex justify-center">
+    <div class="w-full max-w-md bg-white/10 backdrop-blur-2xl
+      border border-white/15 rounded-2xl p-6
+      shadow-[0_40px_90px_rgba(0,0,0,0.7)]">
+
+      <h3 class="text-xl font-bold text-center mb-2">
+        Analyze Message
+      </h3>
+      <p class="text-xs text-slate-400 text-center mb-4">
+        Paste any SMS or email text
+      </p>
+
+      <form method="POST" action="/predict" class="space-y-4">
+        <textarea name="message" rows="4" required
+          placeholder="Enter message here..."
+          class="w-full rounded-xl bg-white/5 border border-white/20
+          text-white p-3 focus:outline-none focus:ring-2
+          focus:ring-cyan-400 resize-none">{{ message or "" }}</textarea>
+
+        <button
+          class="w-full py-3 rounded-xl font-semibold
+          bg-gradient-to-r from-blue-600 to-cyan-500
+          hover:from-blue-500 hover:to-cyan-400
+          shadow-[0_14px_40px_rgba(56,189,248,0.7)]
+          transition-all">
+          Detect Spam
+        </button>
+      </form>
+
+      <!-- RESULT -->
+      {% if prediction %}
+      <div class="mt-6 p-4 rounded-xl text-center
+        bg-gradient-to-r from-blue-600 to-cyan-500 shadow-lg">
+        <p class="text-lg font-bold">{{ prediction }}</p>
+        <p class="text-sm mt-1">Confidence: {{ confidence }}%</p>
+
+        <!-- Confidence bar -->
+        <div class="mt-2 h-2 bg-black/30 rounded-full overflow-hidden">
+          <div class="h-full bg-white"
+            style="width: {{ confidence }}%"></div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if error %}
+      <p class="mt-4 text-center text-red-400 font-semibold">{{ error }}</p>
+      {% endif %}
+
+    </div>
+  </section>
+</main>
+
+<!-- 🧾 Footer -->
+<footer class="mb-[0px] text-center py-4 text-xs sm:text-sm text-slate-300
+bg-[radial-gradient(ellipse_at_top,_#1e293b_0%,_#020617_60%)]">
+  © 2025 · SpamGuard AI · Developed by <b>Krish Gupta</b>
+</footer>
+
+</body>
+</html>
