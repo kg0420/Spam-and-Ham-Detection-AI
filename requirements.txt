@@ -4,7 +4,8 @@ Flask
 tensorflow
 numpy
 pandas 
-sklearn
+scikit-learn
 matplotlib
 seaborn
+
 
