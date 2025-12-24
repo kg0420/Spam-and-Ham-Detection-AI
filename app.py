@@ -30,7 +30,7 @@ app = Flask(__name__)
 # -------------------------
 # Load trained model
 # -------------------------
-model = load_model("spam_model.keras", compile=False)
+model = load_model("spam_model.h5", compile=False)
 
 # -------------------------
 # Parameters
