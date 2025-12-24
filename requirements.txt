@@ -1,14 +1,15 @@
-Flask==3.0.3
-gunicorn==21.2.0
+Flask
+gunicorn
 
-tensorflow==2.15.0
-numpy==1.26.4
-pandas==2.2.2
-scikit-learn==1.4.2
+tensorflow
+numpy
+pandas
+scikit-learn
 
-nltk==3.8.1
-matplotlib==3.8.4
-seaborn==0.13.2
+nltk
+matplotlib
+seaborn
+
 
 
 
