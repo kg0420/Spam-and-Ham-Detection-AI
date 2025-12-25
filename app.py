@@ -8,19 +8,17 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from tensorflow.keras.preprocessing.text import one_hot
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.models import load_model
+import onnxruntime as ort
 
 # -------------------------
-# Reduce TensorFlow noise
+# Reduce logs
 # -------------------------
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # -------------------------
-# NLTK downloads (run once)
+# NLTK setup (no downloads)
 # -------------------------
-nltk.download("punkt")
-nltk.download("stopwords")
-nltk.download("wordnet")
+nltk.data.path.append("/opt/render/nltk_data")
 
 # -------------------------
 # Flask app
@@ -28,10 +26,15 @@ nltk.download("wordnet")
 app = Flask(__name__)
 
 # -------------------------
-# Load trained model
+# Load ONNX model
 # -------------------------
-model = load_model("spam_model.keras")
+session = ort.InferenceSession(
+    "spam_model.onnx",
+    providers=["CPUExecutionProvider"]
+)
 
+input_name = session.get_inputs()[0].name
+output_name = session.get_outputs()[0].name
 
 # -------------------------
 # Parameters
@@ -52,7 +55,7 @@ def preprocess_text(text):
     words = [lemma.lemmatize(w) for w in words if w not in stop_words]
     encoded = one_hot(" ".join(words), VOCAB_SIZE)
     padded = pad_sequences([encoded], maxlen=MAX_LEN)
-    return padded
+    return padded.astype(np.int64)
 
 # -------------------------
 # Routes
@@ -63,27 +66,32 @@ def home():
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    try:
-        message = request.form.get("message", "")
+    message = request.form.get("message", "").strip()
 
-        if not message.strip():
-            return render_template("index.html", error="Message cannot be empty")
+    if not message:
+        return render_template("index.html", error="Message cannot be empty")
 
-        processed = preprocess_text(message)
-        prediction = model.predict(processed)[0]
+    processed = preprocess_text(message)
 
-        label = "Spam 🚫" if np.argmax(prediction) == 0 else "Ham ✅"
-        confidence = round(float(np.max(prediction)) * 100, 2)
+    prediction = session.run(
+        [output_name],
+        {input_name: processed}
+    )[0][0]
 
-        return render_template(
-            "index.html",
-            message=message,
-            prediction=label,
-            confidence=confidence
-        )
+    class_id = int(np.argmax(prediction))
+    confidence = round(float(prediction[class_id]) * 100, 2)
 
-    except Exception as e:
-        return render_template("index.html", error=str(e))
+    label = "Spam 🚫" if class_id == 0 else "Ham ✅"
 
+    return render_template(
+        "index.html",
+        message=message,
+        prediction=label,
+        confidence=confidence
+    )
+
+# -------------------------
+# Run locally
+# -------------------------
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(debug=True)
