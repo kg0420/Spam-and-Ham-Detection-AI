@@ -8,15 +8,15 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from tensorflow.keras.preprocessing.text import one_hot
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-import onnxruntime as ort
+from tensorflow.keras.models import load_model
 
 # -------------------------
-# Reduce logs
+# Reduce TensorFlow noise
 # -------------------------
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # -------------------------
-# NLTK setup (no downloads)
+# NLTK setup (NO downloads in production)
 # -------------------------
 nltk.data.path.append("/opt/render/nltk_data")
 
@@ -26,15 +26,9 @@ nltk.data.path.append("/opt/render/nltk_data")
 app = Flask(__name__)
 
 # -------------------------
-# Load ONNX model
+# Load trained model
 # -------------------------
-session = ort.InferenceSession(
-    "spam_model.onnx",
-    providers=["CPUExecutionProvider"]
-)
-
-input_name = session.get_inputs()[0].name
-output_name = session.get_outputs()[0].name
+model = load_model("spam_model.keras", compile=False)
 
 # -------------------------
 # Parameters
@@ -55,7 +49,7 @@ def preprocess_text(text):
     words = [lemma.lemmatize(w) for w in words if w not in stop_words]
     encoded = one_hot(" ".join(words), VOCAB_SIZE)
     padded = pad_sequences([encoded], maxlen=MAX_LEN)
-    return padded.astype(np.int64)
+    return padded
 
 # -------------------------
 # Routes
@@ -72,13 +66,9 @@ def predict():
         return render_template("index.html", error="Message cannot be empty")
 
     processed = preprocess_text(message)
+    prediction = model.predict(processed, verbose=0)[0]
 
-    prediction = session.run(
-        [output_name],
-        {input_name: processed}
-    )[0][0]
-
-    class_id = int(np.argmax(prediction))
+    class_id = np.argmax(prediction)
     confidence = round(float(prediction[class_id]) * 100, 2)
 
     label = "Spam 🚫" if class_id == 0 else "Ham ✅"
